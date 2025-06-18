@@ -21,12 +21,7 @@ An easy-to-use AI media analysis system integrating CLIP, YOLOv8, and Whisper V3
 
 ## Installation
 
-### 1. Clone or Create Project
-```bash
-python create_complete_system.py
-```
-
-### 2. Install Dependencies
+### 1. Install Dependencies
 ```bash
 # Install PyTorch (CUDA 11.8)
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
@@ -35,12 +30,12 @@ pip install torch torchvision torchaudio --index-url https://download.pytorch.or
 pip install -r requirements.txt
 ```
 
-### 3. Run the System
+### 2. Run the System
 ```bash
 python run.py
 ```
 
-### 4. Access Web Interface
+### 3. Access Web Interface
 Open browser and visit: http://localhost:5000
 
 ## Usage
