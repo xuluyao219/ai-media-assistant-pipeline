@@ -1,4 +1,4 @@
-# Simplified Multimodal AI Media Analysis System
+# Multimodal AI Media Analysis System
 
 An easy-to-use AI media analysis system integrating CLIP, YOLOv8, and Whisper V3, with web interface support for upload and analysis.
 
