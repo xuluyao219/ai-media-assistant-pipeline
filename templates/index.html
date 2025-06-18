@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multimodal AI Media Analysis System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+            padding: 2rem;
+            text-align: center;
+            border-bottom: 1px solid #333;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .header p {
+            color: #888;
+            font-size: 1.1rem;
+        }
+        
+        .tech-badges {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .badge {
+            background: rgba(79, 70, 229, 0.1);
+            border: 1px solid rgba(79, 70, 229, 0.3);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .container {
+            flex: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            width: 100%;
+        }
+        
+        .upload-section {
+            background: #1a1a1a;
+            border-radius: 12px;
+            padding: 3rem;
+            margin-bottom: 2rem;
+            border: 2px dashed #333;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .upload-section.dragover {
+            border-color: #4f46e5;
+            background: rgba(79, 70, 229, 0.05);
+        }
+        
+        .upload-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        
+        .upload-section h2 {
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+        
+        .upload-section p {
+            color: #888;
+            margin-bottom: 2rem;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .file-info {
+            background: #1a1a1a;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            display: none;
+        }
+        
+        .file-info h3 {
+            margin-bottom: 1rem;
+        }
+        
+        .progress-bar {
+            background: #2a2a2a;
+            border-radius: 8px;
+            height: 20px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #4f46e5 0%, #7c3aed 100%);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8rem;
+        }
+        
+        .results-section {
+            background: #1a1a1a;
+            border-radius: 12px;
+            padding: 2rem;
+            display: none;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        
+        .stat-card {
+            background: #2a2a2a;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #4f46e5;
+            margin-bottom: 0.5rem;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #333;
+        }
+        
+        .tab {
+            padding: 1rem 1.5rem;
+            background: none;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+        
+        .tab.active {
+            color: #fff;
+            border-bottom-color: #4f46e5;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .search-box {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .search-input {
+            flex: 1;
+            background: #2a2a2a;
+            border: 1px solid #333;
+            color: white;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #4f46e5;
+        }
+        
+        .scene-item, .object-item, .transcript-item {
+            background: #2a2a2a;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        .time-badge {
+            background: #333;
+            color: #aaa;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            display: inline-block;
+            margin-right: 0.5rem;
+        }
+        
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            display: none;
+        }
+        
+        .success-message {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #22c55e;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            display: none;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #333;
+            border-top-color: #4f46e5;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 1rem;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .footer {
+            background: #1a1a1a;
+            padding: 2rem;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Multimodal AI Media Analysis System</h1>
+        <p>Supports Video and Audio File Analysis</p>
+        <div class="tech-badges">
+            <span class="badge">YOLOv8</span>
+            <span class="badge">CLIP</span>
+            <span class="badge">Whisper V3</span>
+            <span class="badge">GPU Accelerated</span>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="upload-section" id="uploadSection">
+            <div class="upload-icon">📁</div>
+            <h2>Upload Media File</h2>
+            <p>Supported formats: MP4, AVI, MOV, MKV, MP3, WAV, FLAC</p>
+            <input type="file" id="fileInput" class="file-input" accept=".mp4,.avi,.mov,.mkv,.webm,.mp3,.wav,.flac,.m4a,.aac">
+            <button class="btn" onclick="document.getElementById('fileInput').click()">Choose File</button>
+        </div>
+        
+        <div class="error-message" id="errorMessage"></div>
+        <div class="success-message" id="successMessage"></div>
+        
+        <div class="file-info" id="fileInfo">
+            <h3>File Information</h3>
+            <p>Filename: <span id="fileName"></span></p>
+            <p>File Type: <span id="fileType"></span></p>
+            <p>Status: <span id="analysisStatus">Ready</span></p>
+            <div class="progress-bar" id="progressBar">
+                <div class="progress-fill" id="progressFill">0%</div>
+            </div>
+            <button class="btn" id="analyzeBtn" onclick="startAnalysis()">Start Analysis</button>
+            <button class="btn" id="downloadBtn" onclick="downloadResults()" style="display:none;">Download Results</button>
+        </div>
+        
+        <div class="results-section" id="resultsSection">
+            <h2>Analysis Results</h2>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="scenesCount">0</div>
+                    <div>Scenes</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="objectsCount">0</div>
+                    <div>Object Types</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="transcriptCount">0</div>
+                    <div>Transcript Segments</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="processTime">0s</div>
+                    <div>Processing Time</div>
+                </div>
+            </div>
+            
+            <div class="search-box">
+                <input type="text" class="search-input" id="searchInput" placeholder="Enter natural language query, e.g.: find segments with people speaking">
+                <button class="btn" onclick="performSearch()">Search</button>
+            </div>
+            
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('scenes')">Scenes</button>
+                <button class="tab" onclick="switchTab('objects')">Objects</button>
+                <button class="tab" onclick="switchTab('transcript')">Transcript</button>
+                <button class="tab" onclick="switchTab('search')">Search Results</button>
+            </div>
+            
+            <div class="tab-content active" id="scenesTab">
+                <div id="scenesList"></div>
+            </div>
+            
+            <div class="tab-content" id="objectsTab">
+                <div id="objectsList"></div>
+            </div>
+            
+            <div class="tab-content" id="transcriptTab">
+                <div id="transcriptList"></div>
+            </div>
+            
+            <div class="tab-content" id="searchTab">
+                <div id="searchResults"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>Multimodal AI Media Analysis System - Supports RTX 3080+</p>
+    </div>
+    
+    <script>
+        let currentFileId = null;
+        let analysisInterval = null;
+        
+        // File drag and drop handling
+        const uploadSection = document.getElementById('uploadSection');
+        const fileInput = document.getElementById('fileInput');
+        
+        uploadSection.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadSection.classList.add('dragover');
+        });
+        
+        uploadSection.addEventListener('dragleave', () => {
+            uploadSection.classList.remove('dragover');
+        });
+        
+        uploadSection.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadSection.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+        
+        function handleFile(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            showMessage('Uploading file...', 'success');
+            
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    showMessage(data.error, 'error');
+                } else {
+                    currentFileId = data.file_id;
+                    document.getElementById('fileName').textContent = data.filename;
+                    document.getElementById('fileType').textContent = data.file_type;
+                    document.getElementById('fileInfo').style.display = 'block';
+                    showMessage('File uploaded successfully', 'success');
+                }
+            })
+            .catch(error => {
+                showMessage('Upload failed: ' + error, 'error');
+            });
+        }
+        
+        function startAnalysis() {
+            if (!currentFileId) return;
+            
+            document.getElementById('analyzeBtn').disabled = true;
+            document.getElementById('analysisStatus').textContent = 'Analyzing...';
+            
+            fetch(`/analyze/${currentFileId}`, {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    showMessage(data.error, 'error');
+                    document.getElementById('analyzeBtn').disabled = false;
+                } else {
+                    // Start polling status
+                    analysisInterval = setInterval(checkStatus, 1000);
+                }
+            })
+            .catch(error => {
+                showMessage('Analysis failed: ' + error, 'error');
+                document.getElementById('analyzeBtn').disabled = false;
+            });
+        }
+        
+        function checkStatus() {
+            if (!currentFileId) return;
+            
+            fetch(`/status/${currentFileId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    clearInterval(analysisInterval);
+                    showMessage(data.error, 'error');
+                    return;
+                }
+                
+                // Update progress
+                const progress = data.progress || 0;
+                document.getElementById('progressFill').style.width = progress + '%';
+                document.getElementById('progressFill').textContent = progress + '%';
+                
+                // Update status
+                if (data.status === 'analyzing') {
+                    document.getElementById('analysisStatus').innerHTML = 'Analyzing... <span class="loading"></span>';
+                } else if (data.status === 'completed') {
+                    clearInterval(analysisInterval);
+                    document.getElementById('analysisStatus').textContent = 'Analysis Complete';
+                    document.getElementById('analyzeBtn').style.display = 'none';
+                    document.getElementById('downloadBtn').style.display = 'inline-block';
+                    
+                    // Show result summary
+                    if (data.summary) {
+                        document.getElementById('scenesCount').textContent = data.summary.scenes_count;
+                        document.getElementById('objectsCount').textContent = data.summary.objects_count;
+                        document.getElementById('transcriptCount').textContent = data.summary.transcript_segments;
+                        document.getElementById('processTime').textContent = Math.round(data.summary.processing_time) + 's';
+                    }
+                    
+                    // Load detailed results
+                    loadResults();
+                    showMessage('Analysis completed!', 'success');
+                } else if (data.status === 'error') {
+                    clearInterval(analysisInterval);
+                    document.getElementById('analysisStatus').textContent = 'Analysis Failed';
+                    showMessage('Analysis failed: ' + (data.error || 'Unknown error'), 'error');
+                    document.getElementById('analyzeBtn').disabled = false;
+                }
+            })
+            .catch(error => {
+                clearInterval(analysisInterval);
+                showMessage('Status check failed: ' + error, 'error');
+            });
+        }
+        
+        function loadResults() {
+            if (!currentFileId) return;
+            
+            fetch(`/results/${currentFileId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    showMessage(data.error, 'error');
+                    return;
+                }
+                
+                // Show results section
+                document.getElementById('resultsSection').style.display = 'block';
+                
+                // Show scenes
+                const scenesList = document.getElementById('scenesList');
+                scenesList.innerHTML = '';
+                if (data.scenes && data.scenes.length > 0) {
+                    data.scenes.forEach(scene => {
+                        const sceneDiv = document.createElement('div');
+                        sceneDiv.className = 'scene-item';
+                        sceneDiv.innerHTML = `
+                            <span class="time-badge">${scene.start_time.toFixed(1)}s - ${scene.end_time.toFixed(1)}s</span>
+                            <strong>Scene ${scene.scene_id}</strong>
+                            <p>Duration: ${scene.duration.toFixed(1)} seconds</p>
+                        `;
+                        scenesList.appendChild(sceneDiv);
+                    });
+                } else {
+                    scenesList.innerHTML = '<p style="color: #666;">No scene data (audio file)</p>';
+                }
+                
+                // Show objects
+                const objectsList = document.getElementById('objectsList');
+                objectsList.innerHTML = '';
+                if (data.objects && data.objects.length > 0) {
+                    // Count objects
+                    const objectCounts = {};
+                    data.objects.forEach(obj => {
+                        if (!objectCounts[obj.class]) {
+                            objectCounts[obj.class] = 0;
+                        }
+                        objectCounts[obj.class]++;
+                    });
+                    
+                    Object.entries(objectCounts).forEach(([objClass, count]) => {
+                        const objDiv = document.createElement('div');
+                        objDiv.className = 'object-item';
+                        objDiv.innerHTML = `
+                            <strong>${objClass}</strong>
+                            <span style="float: right;">${count} detections</span>
+                        `;
+                        objectsList.appendChild(objDiv);
+                    });
+                } else {
+                    objectsList.innerHTML = '<p style="color: #666;">No object data (audio file)</p>';
+                }
+                
+                // Show transcript
+                const transcriptList = document.getElementById('transcriptList');
+                transcriptList.innerHTML = '';
+                if (data.transcripts && data.transcripts.segments) {
+                    transcriptList.innerHTML = `<p style="margin-bottom: 1rem;">Language: <strong>${data.transcripts.language || 'Unknown'}</strong></p>`;
+                    
+                    data.transcripts.segments.forEach(segment => {
+                        const segDiv = document.createElement('div');
+                        segDiv.className = 'transcript-item';
+                        segDiv.innerHTML = `
+                            <span class="time-badge">${segment.start.toFixed(1)}s - ${segment.end.toFixed(1)}s</span>
+                            <p>${segment.text}</p>
+                        `;
+                        transcriptList.appendChild(segDiv);
+                    });
+                } else {
+                    transcriptList.innerHTML = '<p style="color: #666;">No transcript data</p>';
+                }
+            })
+            .catch(error => {
+                showMessage('Failed to load results: ' + error, 'error');
+            });
+        }
+        
+        function performSearch() {
+            const query = document.getElementById('searchInput').value.trim();
+            if (!query || !currentFileId) return;
+            
+            fetch(`/search/${currentFileId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ query: query })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    showMessage(data.error, 'error');
+                    return;
+                }
+                
+                // Switch to search results tab
+                switchTab('search');
+                
+                // Show search results
+                const searchResults = document.getElementById('searchResults');
+                searchResults.innerHTML = `<h3>Query: "${query}"</h3>`;
+                
+                if (data.matches && data.matches.length > 0) {
+                    data.matches.forEach((match, index) => {
+                        const matchDiv = document.createElement('div');
+                        matchDiv.className = 'scene-item';
+                        
+                        let content = `<strong>${index + 1}. ${match.type}</strong> (Similarity: ${match.score.toFixed(3)})<br>`;
+                        
+                        if (match.type === 'scene') {
+                            content += `Scene ${match.content.scene_id}: ${match.content.start_time.toFixed(1)}s - ${match.content.end_time.toFixed(1)}s`;
+                        } else if (match.type === 'object') {
+                            content += `Object class: ${match.content.class}`;
+                        } else if (match.type === 'transcript') {
+                            content += `<span class="time-badge">${match.content.start.toFixed(1)}s - ${match.content.end.toFixed(1)}s</span>${match.content.text}`;
+                        }
+                        
+                        matchDiv.innerHTML = content;
+                        searchResults.appendChild(matchDiv);
+                    });
+                } else {
+                    searchResults.innerHTML += '<p style="color: #666;">No matching results found</p>';
+                }
+            })
+            .catch(error => {
+                showMessage('Search failed: ' + error, 'error');
+            });
+        }
+        
+        function switchTab(tabName) {
+            // Remove all active states
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            // Activate selected tab
+            event.target.classList.add('active');
+            document.getElementById(tabName + 'Tab').classList.add('active');
+        }
+        
+        function downloadResults() {
+            if (!currentFileId) return;
+            window.location.href = `/download/${currentFileId}`;
+        }
+        
+        function showMessage(message, type) {
+            const errorEl = document.getElementById('errorMessage');
+            const successEl = document.getElementById('successMessage');
+            
+            // Hide all messages
+            errorEl.style.display = 'none';
+            successEl.style.display = 'none';
+            
+            // Show appropriate message
+            if (type === 'error') {
+                errorEl.textContent = message;
+                errorEl.style.display = 'block';
+            } else {
+                successEl.textContent = message;
+                successEl.style.display = 'block';
+            }
+            
+            // Auto-hide after 3 seconds
+            setTimeout(() => {
+                errorEl.style.display = 'none';
+                successEl.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

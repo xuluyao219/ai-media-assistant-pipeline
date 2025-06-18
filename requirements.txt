@@ -1,0 +1,25 @@
+# PyTorch (choose based on your CUDA version)
+torch>=2.0.0
+torchvision>=0.15.0
+torchaudio>=2.0.0
+
+# Core AI models
+openai-clip==1.0.1
+ultralytics>=8.0.0
+openai-whisper==20231117
+ffmpeg-python>=0.2.0
+
+# Web framework
+flask>=2.3.0
+werkzeug>=2.3.0
+
+# Image processing
+opencv-python>=4.7.0
+pillow>=9.5.0
+
+# Data processing
+numpy>=1.24.0
+pandas>=2.0.0
+
+# Others
+tqdm>=4.65.0
